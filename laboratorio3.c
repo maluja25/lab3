@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define MAX_LIN 1000
+#define Cnegro ▅
 
 
 
@@ -16,7 +17,7 @@ salida: un puntero doble , con todo lo del archivo almacenado
 
 int **leermatriz(){
    //fp es un dato tipo FILE y usando fopen para abrir el archivo de entrada .txt en modo lectura 
-   FILE* fp=fopen("archivo.txt","r");
+   FILE* fp=fopen("archivo.in","r");
    // linea[MAX_LIN] es un arreglo estatico de tamaño 1000 (MAX_LINE = 1000) donde en el se almacenar cada una de las lineas en el archivo de entrada .txt
    // *p es un puntero que utilizando la funcion strtok va a separar los datos según la separacion que deseamos dar.
    char linea[MAX_LIN], *p;
@@ -46,23 +47,17 @@ int **leermatriz(){
    //retornamos la matriz con los datos del archivo de entrada .txt en ella
    return matriz;
 }
-int llenarbosque(int posx,int posy,int **matriz,int **bosque){
-	int i = 6;
-	int j = -2;
-	printf("\n\n\n");
-	printf("el posx = %i\n",posx);
-	printf("el posy = %i\n",posy);
-	while(j < 3){
-		printf("el posxb = %i\n",posx-1);
-		printf("el posyb= %i\n",posy+j);
-		bosque[posy-1][posx-j] = matriz[1][i];
-		printf("bosque[%i][%i] (%i) == matriz[%i][%i](%i)\n",posy-2,posx-j,bosque[posy-2][posx-j],0,i,matriz[1][i]);
+int llenarbosque(int x,int posx,int posy,int **matriz,int **bosque){
+	int i = 2;
+	int j = posy - 2;
+	while(j <= posy + 2){
+		bosque[posx-1][j] = matriz[x][i];
 		j++;
-		i--;
+		i++;
 	}	
 }
-int rellenar(int **matriz){
-	int largo = 0,ancho = 0;
+int largo = 0,ancho = 0;
+int **rellenar(int **matriz){
 	int i = 0;
 	for(i = 1 ; i <= m ; i++){
 		if(matriz[i][1] > largo){
@@ -92,37 +87,90 @@ int rellenar(int **matriz){
 		for (int k = 0; k <= largo; ++k)
 			bosque[l][k] = 0;
 	}
-	llenarbosque(matriz[1][0],matriz[1][1],matriz,bosque);
-	//llenarbosque(matriz[2][0],matriz[2][1],matriz,bosque);
-	//llenarbosque(matriz[3][0],matriz[3][1],matriz,bosque);
-	//llenarbosque(matriz[4][0],matriz[4][1],matriz,bosque);
-	/*
-	llenarbosque(matriz[5][0],matriz[5][1],matriz,bosque);
-	llenarbosque(matriz[6][0],matriz[6][1],matriz,bosque);
-	llenarbosque(matriz[7][0],matriz[7][1],matriz,bosque);
-	*/
+	i = 1;
+	while(i<=22){
+		llenarbosque(i,matriz[i][0],matriz[i][1],matriz,bosque);
+		i++;
+	}
+	return bosque;
+}
+int salida1(int **bosque){
+	FILE *archivo = fopen("salida1.out","w");
+
 	for (int i = 0; i <= ancho; ++i)
 	{
 		for (int j = 0; j <= largo; ++j)
 		{
-			printf("%i    ",bosque[i][j]);
+			if(bosque[i][j] == 0){
+				int X = 'X';
+				fprintf(archivo, "0 ");;
+			}else{
+				fprintf(archivo, "%i ",bosque[i][j]);
+			}	
+		}
+		fprintf(archivo,"\n");
+	}
+	fclose(archivo);
+}
+int cambio(int x,int y,int **bosqueF){
+	if(y == ancho){
+		return 0;
+	}
+	if(bosqueF[y+1][x] == 0 ){
+		bosqueF[y+1][x] = bosqueF[y][x];
+	}else{
+		bosqueF[y+1][x] =  bosqueF[y+1][x];
+	}
+}
+int salida2(int **bosque){
+	int **bosqueF;
+	//memoria para bosque con la funcion malloc
+	bosqueF = (int **)malloc(sizeof(int *)*ancho);
+	//memoria para cada espacio en bosque
+	for (int i = 0; i <= largo; ++i)
+		bosqueF[i] = (int *)malloc(sizeof(int)*largo);
+	//rellenamos la matriz bosque con ceros inicialmente
+	for (int l = 0; l <= ancho; ++l){
+		for (int k = 0; k <= largo; ++k)
+			bosqueF[l][k] = 0;
+	}
+	for (int i = 0; i <= ancho; ++i)
+	{
+		for (int j = 0; j <= largo; ++j)
+		{
+			bosqueF[i][j] = bosque[i][j];
+			printf("%i ",bosqueF[i][j]);
 		}
 		printf("\n");
 	}
+	printf("\n");
+	for (int i = 0; i <= ancho; ++i)
+	{
+		for (int j = 0; j <= largo; ++j)
+		{
+			cambio(j,i,bosqueF);
+			printf("%i ",bosqueF[i][j]);
+		}
+		printf("\n");
+	}
+	FILE *archivo = fopen("salida2.out","w");
+
+	for (int i = 0; i <= ancho; ++i)
+	{
+		for (int j = 0; j <= largo; ++j)
+		{
+			fprintf(archivo, "%i ",bosqueF[i][j]);	
+		}
+		fprintf(archivo,"\n");
+	}
+	fclose(archivo);
 }
 int main(int argc, char const *argv[])
 {
 	int **matriz = leermatriz();
-	for (int i = 0; i <= m; ++i)
-	{
-		for (int j = 0; j <= n; ++j)
-		{
-			printf("%i    ",matriz[i][j]);
-		}
-		printf("\n");
-	}
-
-
-	rellenar(matriz);
+	int **bosque = rellenar(matriz);
+	salida1(bosque);
+	printf("\n");
+	salida2(bosque);
 	return 0;
 }
