@@ -19,7 +19,7 @@ salida: un puntero doble , con todo lo del archivo almacenado
 */
 int **leermatriz(){
    //fp es un dato tipo FILE y usando fopen para abrir el archivo de entrada .txt en modo lectura 
-   FILE* fp=fopen("archivo.in","r");
+   FILE* fp=fopen("archivoPrueba.in","r");
    // linea[MAX_LIN] es un arreglo estatico de tamaño 1000 (MAX_LINE = 1000) donde en el se almacenar cada una de las lineas en el archivo de entrada .txt
    // *p es un puntero que utilizando la funcion strtok va a separar los datos según la separacion que deseamos dar.
    char linea[MAX_LIN], *p;
@@ -156,16 +156,23 @@ salidas: ninguna
 **/
 int cambio(int x,int y,int **bosqueF){
 	//si en la posicion y se encuentra en el limite superior del bosque retornamos 0 para que no realice el cambio
-	if(y == ancho){
+	if(y == ancho || y == 0){
 		return 0;
+	}
+	if(bosqueF[y-1][x] == 0){
+		bosqueF[y-1][x] = bosqueF[y][x];
+	}else{
+		bosqueF[y-1][x] = bosqueF[y-1][x];
 	}
 	//si la posicion y siguiente hay un 0 , lo cambiamos por la misma altura que tenemos en nuetra posicion x,y actual
 	if(bosqueF[y+1][x] == 0 ){
 		bosqueF[y+1][x] = bosqueF[y][x];
+		return 0;
 	}
 	//si no , la posicion se mantiene con el mismo numero.
 	else{
 		bosqueF[y+1][x] =  bosqueF[y+1][x];
+		return 0;
 	}
 }
 /**
@@ -233,6 +240,7 @@ int imprimirBosque(int **bosque){
 		}
 		printf("\n");
 	}
+	return 0;
 }
 int main()
 {
